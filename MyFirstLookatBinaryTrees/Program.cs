@@ -21,6 +21,12 @@ namespace MyFirstLookatBinaryTrees
             myFirstBinaryTree.Add(4);
             myFirstBinaryTree.Add(4);
             myFirstBinaryTree.Add(5);
+
+            Console.WriteLine(myFirstBinaryTree.Contains(10));
+            Console.WriteLine(myFirstBinaryTree.Contains(11));
+            Console.WriteLine(myFirstBinaryTree.Contains(5));
+            Console.WriteLine(myFirstBinaryTree.Contains(8));
+            Console.WriteLine(myFirstBinaryTree.Contains(135));
         }
     }
 }

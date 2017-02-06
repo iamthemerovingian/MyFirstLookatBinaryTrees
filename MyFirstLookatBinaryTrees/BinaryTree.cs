@@ -1,5 +1,4 @@
 ﻿
-using System;
 
 namespace MyFirstLookatBinaryTrees 
 {
@@ -22,6 +21,44 @@ namespace MyFirstLookatBinaryTrees
             _count++;
         }
 
+        public bool Contains(T Value)
+        {
+            BinaryTreeNode<T> node;
+
+            if (_head == null)
+            {
+                return false;
+            }
+            else
+            {
+                return HasValue(_head, Value, out node) ?? false;
+            }
+        }
+
+        private bool? HasValue(BinaryTreeNode<T> current, T value, out BinaryTreeNode<T> node)
+        {
+            node = null;
+            if (current == null)
+            {
+                return false;
+            }
+
+            if (current.Value.Equals(value))
+            {
+                node = current;
+                return true;
+            }
+
+            var result = current.Value.CompareTo(value);
+
+            if (result > 0) //Current is greater than the value, so value is smaller than current, so go left!
+            {
+                return HasValue(current.Left, value, out node);
+            }
+
+            return HasValue(current.Right, value, out node);
+        }
+
         private void AddTo(BinaryTreeNode<T> current, T value)
         {
             var result = current.CompareTo(value);
@@ -37,18 +74,7 @@ namespace MyFirstLookatBinaryTrees
                     AddTo(current.Left, value);
                 }
             }
-            else if (result < 0)// Current is less than the value, (value is more than the current) so add to the right
-            {
-                if (current.Right == null)
-                {
-                    current.Right = new BinaryTreeNode<T>(value);
-                }
-                else
-                {
-                    AddTo(current.Right, value);
-                }
-            }
-            else // Values are equal, so add to the right of the current node.
+            else if (result <= 0)// Current is less or equal to the value, (value is more than or equal to the current) so add to the right
             {
                 if (current.Right == null)
                 {
