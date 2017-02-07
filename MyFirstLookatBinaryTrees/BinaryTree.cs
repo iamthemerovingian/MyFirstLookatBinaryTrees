@@ -7,6 +7,69 @@ namespace MyFirstLookatBinaryTrees
         private BinaryTreeNode<T> _head;
         private int _count = 0;
 
+        public void Remove(T value)
+        {
+            BinaryTreeNode<T> matchingNode;
+
+            HasValue(_head, value, out matchingNode);
+
+
+            //Case 1, value does not exist inside the tree.
+            if (matchingNode == null)
+            {
+                return;
+            }
+
+            //Case 2, Value Exists and is a leaf node (has no children)
+            if (matchingNode.Left == null && matchingNode.Right == null)
+            {
+                BinaryTreeNode<T> currentNode = _head;
+                BinaryTreeNode<T> parentNode = null;
+                bool goLeft = false;
+
+                while (currentNode != null)
+                {
+
+                    var result = currentNode.Value.CompareTo(value);
+
+                    if (result == 0) //We've found the node and its parent!
+                    {
+                        //Decide Which Child to delete
+                        if (goLeft)
+                        {
+                            parentNode.Left = null;
+                        }
+                        else
+                        {
+                            parentNode.Right = null;
+                        }
+                        break;
+                    }
+                    else
+                    {
+                        goLeft = false;
+                    }
+
+                    if (result > 0) //Value is smaller, go left!
+                    {
+                        goLeft = true;
+                        parentNode = currentNode;
+                        currentNode = currentNode.Left;
+                        continue;
+                    }
+
+                    if (result < 0) //Value is bigger, go right!
+                    {
+                        goLeft = false;
+                        parentNode = currentNode;
+                        currentNode = currentNode.Right;
+                        continue;
+                    }
+
+
+                }
+            }
+        }
         public void Add(T value)
         {
             if (_head == null)
