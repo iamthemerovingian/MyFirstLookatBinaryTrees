@@ -22,11 +22,24 @@ namespace MyFirstLookatBinaryTrees
             myFirstBinaryTree.Add(9);
             myFirstBinaryTree.Add(7);
 
-            Console.WriteLine(myFirstBinaryTree.Contains(10));
-            Console.WriteLine(myFirstBinaryTree.Contains(11));
-            Console.WriteLine(myFirstBinaryTree.Contains(5));
-            Console.WriteLine(myFirstBinaryTree.Contains(8));
-            Console.WriteLine(myFirstBinaryTree.Contains(135));
+            Console.WriteLine(myFirstBinaryTree.ContainsWithMatched(10));
+            Console.WriteLine(myFirstBinaryTree.ContainsWithMatched(11));
+            Console.WriteLine(myFirstBinaryTree.ContainsWithMatched(5));
+            Console.WriteLine(myFirstBinaryTree.ContainsWithMatched(8));
+            Console.WriteLine(myFirstBinaryTree.ContainsWithMatched(135));
+
+            //myFirstBinaryTree.RemoveWithMatched(10);
+            //myFirstBinaryTree.RemoveWithMatched(5);
+            //myFirstBinaryTree.RemoveWithMatched(2);
+            //myFirstBinaryTree.RemoveWithMatched(4);
+            //myFirstBinaryTree.RemoveWithMatched(9);
+            //myFirstBinaryTree.RemoveWithMatched(7);
+
+            myFirstBinaryTree.PreOrderTraversal(a => Console.WriteLine(a));
+            Console.WriteLine();
+            myFirstBinaryTree.PostOrderTraversal(a => Console.WriteLine(a));
+            Console.WriteLine();
+            myFirstBinaryTree.InOrderTraversal(a => Console.WriteLine(a));
 
             myFirstBinaryTree.Remove(10);
             myFirstBinaryTree.Remove(5);

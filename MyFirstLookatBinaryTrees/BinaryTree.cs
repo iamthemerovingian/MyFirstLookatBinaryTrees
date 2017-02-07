@@ -1,5 +1,7 @@
 ﻿
 
+using System;
+
 namespace MyFirstLookatBinaryTrees 
 {
     public class BinaryTree<T> : System.Collections.Generic.IEnumerable<T> where T: System.IComparable<T>
@@ -9,9 +11,105 @@ namespace MyFirstLookatBinaryTrees
 
         public void Remove(T value)
         {
+            BinaryTreeNode<T> parent;
+            BinaryTreeNode<T> matched = FindWithParent(value, out parent);
+
+            //Case 1. Value does not exist.
+            if (matched == null)
+            {
+                return;
+            }
+
+            _count--;
+
+            //Case 3.1
+            //Node to replace has no right child, so the left child replaces the current child.
+            if (matched.Right == null)
+            {
+                if (parent == null)
+                {
+                    _head = matched.Left;
+                }
+                else
+                {
+                    if (parent.CompareTo(matched.Value) > 0)
+                    {
+                        parent.Left = matched.Left;
+                    }
+                    else
+                    {
+                        parent.Right = matched.Left;
+                    }
+                }
+                return;
+            }
+
+            //3.2 Node has a right child which has no left child. So right child replaces node.
+            if (matched.Right.Left == null)
+            {
+                matched.Right.Left = matched.Left;
+
+                if (parent == null)
+                {
+                    _head = matched.Right;
+                }
+                else
+                {
+                    if (parent.CompareTo(matched.Value) > 0)
+                    {
+                        parent.Left = matched.Right;
+                    }
+                    else
+                    {
+                        parent.Right = matched.Right;
+                    }
+                }
+
+                return;
+            }
+
+            //Case 3.3 Node has a right child who has a left child. The left most child will replace the removed node.
+            if (matched.Right.Left != null)
+            {
+                BinaryTreeNode<T> leftMostParent = matched.Right;
+                BinaryTreeNode<T> leftMostChild = matched.Right.Left;
+
+                while (leftMostChild.Left != null)
+                {
+                    leftMostParent = leftMostChild;
+                    leftMostChild = leftMostChild.Left;
+                }
+
+                leftMostParent.Left = leftMostChild.Right;
+
+                leftMostChild.Left = matched.Left;
+                leftMostChild.Right = matched.Right;
+
+                if (parent == null)
+                {
+                    _head = leftMostChild;
+                }
+                else
+                {
+                    if (parent.CompareTo(matched.Value) > 0)
+                    {
+                        parent.Left = leftMostChild;
+                    }
+                    else
+                    {
+                        parent.Right = leftMostChild;
+                    }
+                }
+
+                return;
+            }
+
+        }
+        public void RemoveWithMatched(T value)
+        {
             BinaryTreeNode<T> matchingNode;
 
-            HasValue(_head, value, out matchingNode);
+            FindWithMatched(_head, value, out matchingNode);
 
 
             //Case 1, value does not exist inside the tree.
@@ -65,11 +163,48 @@ namespace MyFirstLookatBinaryTrees
                         currentNode = currentNode.Right;
                         continue;
                     }
-
-
                 }
             }
+
+            //Case 3, Value Exists but node has children.
+
+            //3.1 Node has no right child.
+            if (matchingNode.Right == null && matchingNode.Left != null)
+            {
+                matchingNode = matchingNode.Left;
+                return;
+            }
+
+            //3.2 Node has a right child which has no left child.
+            if (matchingNode.Right.Left == null)
+            {
+                BinaryTreeNode<T> temp = matchingNode;
+                matchingNode = matchingNode.Right;
+                matchingNode.Left = temp.Left;
+                return;
+            }
+
+            //Case 3.3 Node has a right child who has a left child. The left most child will replace the removed node.
+            if (matchingNode.Right.Left != null)
+            {
+                BinaryTreeNode<T> temp = matchingNode;
+                BinaryTreeNode<T> current = matchingNode.Right;
+
+                while (current.Left != null)
+                {
+                    current = current.Left;
+                }
+
+                matchingNode = current;
+                matchingNode.Right = temp.Right;
+                matchingNode.Left = temp.Left;
+
+                return;
+            }
+
+
         }
+
         public void Add(T value)
         {
             if (_head == null)
@@ -84,7 +219,7 @@ namespace MyFirstLookatBinaryTrees
             _count++;
         }
 
-        public bool Contains(T Value)
+        public bool ContainsWithMatched(T Value)
         {
             BinaryTreeNode<T> node;
 
@@ -94,13 +229,19 @@ namespace MyFirstLookatBinaryTrees
             }
             else
             {
-                return HasValue(_head, Value, out node) ?? false;
+                return FindWithMatched(_head, Value, out node) ?? false;
             }
         }
 
-        private bool? HasValue(BinaryTreeNode<T> current, T value, out BinaryTreeNode<T> node)
+        public bool Contains(T value)
         {
-            node = null;
+            BinaryTreeNode<T> parentNode;
+            return FindWithParent(value, out parentNode) != null;
+        }
+
+        private bool? FindWithMatched(BinaryTreeNode<T> current, T value, out BinaryTreeNode<T> matchedNode)
+        {
+            matchedNode = null;
             if (current == null)
             {
                 return false;
@@ -108,7 +249,7 @@ namespace MyFirstLookatBinaryTrees
 
             if (current.Value.Equals(value))
             {
-                node = current;
+                matchedNode = current;
                 return true;
             }
 
@@ -116,10 +257,42 @@ namespace MyFirstLookatBinaryTrees
 
             if (result > 0) //Current is greater than the value, so value is smaller than current, so go left!
             {
-                return HasValue(current.Left, value, out node);
+                return FindWithMatched(current.Left, value, out matchedNode);
+            }
+            return FindWithMatched(current.Right, value, out matchedNode);
+        }
+
+        private BinaryTreeNode<T> FindWithParent(T value, out BinaryTreeNode<T> parentNode)
+        {
+            BinaryTreeNode<T> currentNode = _head;
+            parentNode = null;
+
+            while (currentNode != null)
+            {
+
+                var result = currentNode.Value.CompareTo(value);
+
+                if (result == 0) //We've found the node and its parent!
+                {
+                    break;
+                }
+                
+                if (result > 0) //Value is smaller, go left!
+                {
+                    parentNode = currentNode;
+                    currentNode = currentNode.Left;
+                    continue;
+                }
+
+                if (result < 0) //Value is bigger, go right!
+                {
+                    parentNode = currentNode;
+                    currentNode = currentNode.Right;
+                    continue;
+                }
             }
 
-            return HasValue(current.Right, value, out node);
+            return currentNode;
         }
 
         private void AddTo(BinaryTreeNode<T> current, T value)
@@ -150,6 +323,51 @@ namespace MyFirstLookatBinaryTrees
             }
         }
 
+        public void PreOrderTraversal(System.Action<T> action)
+        {
+            PreOrderTraversal(action, _head);
+        }
+        private void PreOrderTraversal(System.Action<T> action, BinaryTreeNode<T> current)
+        {
+            if (current != null)
+            {
+                action(current.Value);
+                PreOrderTraversal(action, current.Left);
+                PreOrderTraversal(action, current.Right);
+            }
+        }
+
+        public void InOrderTraversal(System.Action<T> action)
+        {
+            InOrderTraversal(action, _head);
+        }
+
+        private void InOrderTraversal(Action<T> action, BinaryTreeNode<T> current)
+        {
+            if (current != null)
+            {
+                InOrderTraversal(action, current.Left);
+                action(current.Value);
+                InOrderTraversal(action, current.Right);
+            }
+        }
+        public void PostOrderTraversal(System.Action<T> action)
+        {
+            PostOrderTraversal(action, _head);
+        }
+
+        private void PostOrderTraversal(Action<T> action, BinaryTreeNode<T> current)
+        {
+            if (current != null)
+            {
+                PostOrderTraversal(action, current.Left);
+                PostOrderTraversal(action, current.Right);
+                action(current.Value);
+            }
+        }
+
+
+
         public System.Collections.Generic.IEnumerator<T> GetEnumerator()
         {
             throw new System.NotImplementedException();
@@ -157,7 +375,7 @@ namespace MyFirstLookatBinaryTrees
 
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
         {
-            throw new System.NotImplementedException();
+            return GetEnumerator();
         }
     }
 }
